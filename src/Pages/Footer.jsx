@@ -7,7 +7,7 @@ const Footer = () => {
     <Box>
       <Typography fontSize={10}>
         {" "}
-        &copy; {currentYear} Cooperative Bank of Oromia. All Rights Reserved |
+        &copy; {currentYear} All Rights Reserved |
         Designed, Built and Maintained by{" "}
         <a
           href="https://www.linkedin.com/in/latiiLA/"
