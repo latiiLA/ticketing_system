@@ -1,6 +1,6 @@
 import React, { useState } from "react";
 import { DataGrid, GridToolbar } from "@mui/x-data-grid";
-import { Box, Alert, AlertTitle } from "@mui/material";
+import { Box, Alert, AlertTitle, Typography } from "@mui/material";
 
 const Tickets = () => {
   const [copiedData, setCopiedData] = React.useState("");
@@ -42,7 +42,7 @@ const Tickets = () => {
         sx={{
           width: "auto",
           "& .super-app-theme--header": {
-            backgroundColor: "#017d6f !important", // Apply header color
+            backgroundColor: "#017d6f !important",
             color: "#fff !important",
             fontSize: "13px",
             fontWeight: "bold",
@@ -50,6 +50,7 @@ const Tickets = () => {
           marginX: 1,
         }}
       >
+        <Typography>Tickets</Typography>
         <DataGrid
           rows={rows}
           columns={columns}
@@ -65,16 +66,15 @@ const Tickets = () => {
           onClipboardCopy={(copiedString) => setCopiedData(copiedString)}
           sx={{
             "& .MuiDataGrid-toolbarContainer": {
-              backgroundColor: "#017d6f", // Toolbar background color
-              color: "#222", // Toolbar text color
+              color: "#222",
               fontSize: 14,
               fontWeight: "bold",
               "& .MuiButtonBase-root": {
-                color: "#fff !important", // Ensures toolbar button text is white
+                color: "#017d6f !important",
               },
             },
             "& .MuiDataGrid-columnHeader": {
-              backgroundColor: "#017d6f", // Column headers
+              backgroundColor: "#017d6f",
               color: "#222",
               fontSize: 13,
               fontWeight: "bold",
