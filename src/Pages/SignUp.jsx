@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React from "react";
 
 import left_image2 from "../assets/signup.jpg";
 import ticketing_app from "../assets/ticketing_app.gif";
@@ -10,7 +10,6 @@ import {
   Button,
   InputLabel,
   FormControl,
-  FilledInput,
   InputAdornment,
   IconButton,
   Stack,
@@ -20,6 +19,8 @@ import {
   useMediaQuery,
   Avatar,
   OutlinedInput,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 import Visibility from "@mui/icons-material/Visibility";
@@ -28,6 +29,8 @@ import { makeStyles } from "@mui/styles";
 import * as Yup from "yup";
 import { ErrorMessage, Field, Form, Formik } from "formik";
 import { Lock } from "@mui/icons-material";
+import axios from "axios";
+import toast from "react-hot-toast";
 
 const useStyles = makeStyles({
   all: {
@@ -66,9 +69,6 @@ const SignUp = () => {
 
   const [showPassword, setShowPassword] = React.useState(false);
   const [showPassword2, setShowPassword2] = React.useState(false);
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setconfirmPassword] = useState("");
 
   const handleClickShowPassword = () => setShowPassword((show) => !show);
 
@@ -88,6 +88,7 @@ const SignUp = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    role: "USER",
   };
 
   const FORM_VALIDATION = Yup.object().shape({
@@ -106,56 +107,59 @@ const SignUp = () => {
     confirmPassword: Yup.string()
       .oneOf([Yup.ref("password"), null], "Passwords must match")
       .required("Confirm Password is required"),
+    role: Yup.string().required("Role is required"),
   });
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    // if (
-    //   Boolean(firstName) &&
-    //   Boolean(lastName) &&
-    //   Boolean(email) &&
-    //   Boolean(password) &&
-    //   Boolean(confirmPassword) &&
-    //   password.length > 7 &&
-    //   password === confirmPassword
-    // ) {
-    //   console.log(
-    //     firstName,
-    //     lastName,
-    //     email,
-    //     password,
-    //     confirmPassword,
-    //     password.length
-    //   );
-    //   try {
-    //     const response = await axios.post(
-    //       "http://localhost:4000/auth/createUser",
-    //       {
-    //         firstName,
-    //         lastName,
-    //         email,
-    //         password,
-    //         confirmPassword,
-    //       }
-    //     );
-    //     console.log("New user is created:", response.data);
-    //     alert("New user is created");
-    //     setfirstName("");
-    //     setlastName("");
-    //     setEmail("");
-    //     setPassword("");
-    //     setconfirmPassword("");
-    //     navigate("/login");
-    //     // You can redirect the user to the newly created post or update the post list
-    //   } catch (error) {
-    //     console.error("Error creating a user:", error);
-    //     alert("Error creating a user");
+  const handleSubmit = async (data, { resetForm }) => {
+    // const token = localStorage.getItem("token");
+    // if (!token) {
+    //     toast.error("User is not authenticated");
     //   }
-    // } else {
-    //   console.log("Error, invalid signup data ");
-    //   alert("Error, invalid signup data");
+    //   navigate("/home");
+    //   return;
     // }
+    try {
+      const apiUrl = import.meta.env.VITE_APP_API_URL;
+      console.log("apiUrl", apiUrl);
+      const response = await axios.post(
+        `${apiUrl}/signup`,
+        {
+          firstName: data.firstName,
+          lastName: data.lastName,
+          email: data.email,
+          role: data.role,
+          password: data.password,
+          confirmPassword: data.confirmPassword,
+        }
+        // {
+        //   headers: {
+        //     Authorization: `Bearer ${token}`,
+        //   },
+        //   withCredentials: true,
+        // }
+      );
+      // console.log("New user is created:", response.data);
+      resetForm();
+      toast.success(response.data.message);
+    } catch (error) {
+      // console.error("Error creating a user:", error);
+      if (
+        error.response &&
+        error.response.data &&
+        error.response.data.message
+      ) {
+        toast.error(error.response.data.message);
+      } else {
+        // console.error("Error adding an user:", error);
+        toast.error(error.message);
+      }
+    }
   };
+
+  const role = [
+    { value: "USER", label: "USER" },
+    { value: "ADMIN", label: "ADMIN" },
+  ];
 
   return (
     <Box
@@ -384,7 +388,7 @@ const SignUp = () => {
             <Card
               sx={{
                 width: "50%",
-                height: "75%",
+                height: "85%",
                 display: "flex",
                 flexDirection: "column !important",
                 justifyContent: "center",
@@ -408,7 +412,7 @@ const SignUp = () => {
               >
                 {({ errors, touched }) => (
                   <Form className={classes.form}>
-                    <Stack gap={0.5}>
+                    <Stack gap={0.7}>
                       <Box
                         sx={{
                           display: "flex",
@@ -557,6 +561,30 @@ const SignUp = () => {
                             fontSize: "0.75rem",
                             color: "red",
                           }}
+                        />
+                      </FormControl>
+                      <FormControl
+                        variant="outlined"
+                        fullWidth
+                        error={touched.role && !!errors.role}
+                      >
+                        <InputLabel id="role-label">Role</InputLabel>
+                        <Field
+                          as={Select}
+                          name="role"
+                          labelId="role-label"
+                          label="Role"
+                        >
+                          {role.map((option) => (
+                            <MenuItem key={option.value} value={option.value}>
+                              {option.label}
+                            </MenuItem>
+                          ))}
+                        </Field>
+                        <ErrorMessage
+                          name="role"
+                          component="div"
+                          style={{ color: "red" }}
                         />
                       </FormControl>
                     </Stack>
