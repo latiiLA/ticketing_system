@@ -33,13 +33,21 @@ import { Lock, Person } from "@mui/icons-material";
 
 const Login = () => {
   const INITIAL_FORM_STATE = {
-    username: "",
+    email: "",
     password: "",
   };
 
   const FORM_VALIDATION = Yup.object().shape({
-    username: Yup.string().required("Username is required"),
-    password: Yup.string().required("Password is required"),
+    email: Yup.string().email().required("Email is required"),
+    password: Yup.string()
+      .min(8, "Password must be at least 8 characters long")
+      .matches(/[a-zA-Z]/, "Password must contain at least one letter")
+      .matches(/[0-9]/, "Password must contain at least one number")
+      .matches(
+        /[@$!%*?&]/,
+        "Password must contain at least one special character"
+      )
+      .required("Password is required"),
   });
 
   const theme = useTheme();
@@ -56,13 +64,13 @@ const Login = () => {
   };
 
   const handleSubmit = async (user_data) => {
-    const apiUrl = import.meta.env.VITE_API_URL;
-    // console.log(apiUrl);
+    const apiUrl = import.meta.env.VITE_APP_API_URL;
+    console.log("inside handle submit", apiUrl);
 
     setLoading(true);
     try {
-      const response = await axios.post(`${apiUrl}/auth/loginUser`, {
-        username: user_data.username,
+      const response = await axios.post(`${apiUrl}/login`, {
+        email: user_data.email,
         password: user_data.password,
       });
 
@@ -74,13 +82,12 @@ const Login = () => {
 
       const token = response.data.token;
       localStorage.setItem("token", token);
-      // console.log("role in login", data.data.role);
-
-      if (data.data.status === "New") {
-        // window.history.back();
-        navigate("/changepassword");
+      console.log("role in login", data.data.role);
+      if (data.data.role === "USER") {
+        navigate("/dashboard");
+      } else if (data.data.role === "ADMIN") {
+        navigate("/admindashboard");
       } else {
-        // window.history.back();
         navigate("/home");
       }
     } catch (error) {
@@ -197,12 +204,12 @@ const Login = () => {
 
                         <Field
                           as={TextField}
-                          name="username"
-                          label="Username"
+                          name="email"
+                          label="email"
                           variant="outlined"
                           fullWidth
-                          error={touched.username && !!errors.username}
-                          helperText={<ErrorMessage name="username" />}
+                          error={touched.email && !!errors.email}
+                          helperText={<ErrorMessage name="email" />}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
@@ -385,12 +392,12 @@ const Login = () => {
 
                         <Field
                           as={TextField}
-                          name="username"
-                          label="Username"
+                          name="email"
+                          label="email"
                           variant="outlined"
                           fullWidth
-                          error={touched.username && !!errors.username}
-                          helperText={<ErrorMessage name="username" />}
+                          error={touched.email && !!errors.email}
+                          helperText={<ErrorMessage name="email" />}
                           InputProps={{
                             startAdornment: (
                               <InputAdornment position="start">
