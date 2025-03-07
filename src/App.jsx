@@ -18,6 +18,7 @@ function App() {
   return (
     <Box>
       <Routes>
+        <Route path="/" element={<Login />} />
         <Route path="/login" element={<Login />} />
         <Route path="/signup" element={<SignUp />} />
         {/* <Route element={<ProtectedRoute />}> */}
@@ -42,7 +43,7 @@ function App() {
           <Route path="/viewdetails" element={<ViewDetails />} />
         </Route>
         {/* </Route> */}
-        <Route path="*" element={<Login />} />
+        {/* <Route path="*" element={<Login />} /> */}
         {/* <Route path="/changepassword" /> */}
       </Routes>
       <Toaster />
