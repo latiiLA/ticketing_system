@@ -42,7 +42,7 @@ function App() {
           <Route path="/viewdetails" element={<ViewDetails />} />
         </Route>
         {/* </Route> */}
-        {/* <Route path="*" element={<Login />} /> */}
+        <Route path="*" element={<Login />} />
         {/* <Route path="/changepassword" /> */}
       </Routes>
       <Toaster />
