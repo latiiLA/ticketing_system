@@ -1,36 +1,75 @@
-import React from "react";
-import { Box, TextField, Typography, Button, Card } from "@mui/material";
+import React, { useState } from "react";
+import {
+  Box,
+  TextField,
+  Typography,
+  Button,
+  Card,
+  Select,
+  FormControl,
+  InputLabel,
+  MenuItem,
+} from "@mui/material";
 import { Formik, Form, ErrorMessage, Field } from "formik";
 import * as Yup from "yup";
 import axios from "axios";
 import toast from "react-hot-toast";
+import { useNavigate } from "react-router-dom";
 
 const CreateTickets = () => {
+  const [loading, setLoading] = useState(false);
+  const navigate = useNavigate();
   const INITIAL_FORM_STATE = {
-    command: "",
+    title: "",
     description: "",
-    example: "",
+    status: "Open",
   };
 
   const FORM_VALIDATION = Yup.object().shape({
     title: Yup.string().required("Ticket title is required"),
     description: Yup.string().required("Ticket description is required"),
-    status: Yup.string().required("Ticket example is required"),
+    status: Yup.string().required("Ticket status is required"),
   });
 
+  const ticketStatus = [
+    { value: "Open", label: "Open" },
+    { value: "Inprogress", label: "Inprogress" },
+    { value: "Closed", label: "Closed" },
+  ];
+
   const handleSubmit = async (data) => {
+    console.log("inside handle submit");
     const apiUrl = import.meta.env.VITE_APP_API_URL;
+    const token = localStorage.getItem("token");
+
+    if (!token) {
+      //   console.error("No authentication token found");
+      toast.error("User is not authenticated");
+      navigate("/login");
+      return;
+    }
     try {
-      const response = await axios.post(`${apiUrl}/tickets`, {
-        command: data.title,
-        description: data.description,
-        example: data.status,
-      });
-      console.log("New command is created:", response.data);
+      const response = await axios.post(
+        `${apiUrl}/tickets`,
+        {
+          title: data.title,
+          description: data.description,
+          status: data.status,
+        },
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          withCredentials: true,
+        }
+      );
+      console.log("New Ticket is created:", response.data);
       toast.success("Ticket is successfully created");
     } catch (error) {
-      // console.error("Error creating a command:", error);
+      console.error("Error creating a ticket:", error);
       toast.error("Error creating a ticket ", { error });
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -88,15 +127,30 @@ const CreateTickets = () => {
                   error={touched.description && !!errors.description}
                   helperText={<ErrorMessage name="description" />}
                 />
-                <Field
-                  as={TextField}
-                  name="status"
-                  label="Status"
+                <FormControl
                   variant="outlined"
                   fullWidth
                   error={touched.status && !!errors.status}
-                  helperText={<ErrorMessage name="status" />}
-                />
+                >
+                  <InputLabel id="status-label">Role</InputLabel>
+                  <Field
+                    as={Select}
+                    name="status"
+                    labelId="status-label"
+                    label="Status"
+                  >
+                    {ticketStatus.map((option) => (
+                      <MenuItem key={option.value} value={option.value}>
+                        {option.label}
+                      </MenuItem>
+                    ))}
+                  </Field>
+                  <ErrorMessage
+                    name="status"
+                    component="div"
+                    style={{ fontSize: 10, color: "red" }}
+                  />
+                </FormControl>
                 <Button
                   sx={{ width: 50, margin: "auto" }}
                   variant="contained"
