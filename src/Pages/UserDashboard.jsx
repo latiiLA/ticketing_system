@@ -67,7 +67,7 @@ function UserDashboard(props) {
         },
         {
           kind: "header",
-          title: "Reports",
+          title: "Main Items",
         },
         {
           segment: "tickets",

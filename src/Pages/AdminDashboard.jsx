@@ -67,7 +67,7 @@ function Dashboard(props) {
         },
         {
           kind: "header",
-          title: "Reports",
+          title: "Main Items",
         },
         {
           segment: "managetickets",
